@@ -1,0 +1,30 @@
+{
+  "name": "midi-player",
+  "version": "0.0.1",
+  "homepage": "https://github.com/miztroh/midi-player",
+  "authors": [
+    "miztroh <miztroh@gmail.com>"
+  ],
+  "description": "A Polymer custom element for MIDI file playback",
+  "main": "midi-player.html",
+  "keywords": [
+  	"polymer",
+    "midi",
+    "player",
+    "midi player",
+    "web-components"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "paper-slider": "Polymer/paper-slider#latest",
+    "paper-icon-button": "Polymer/paper-icon-button#latest",
+    "MIDI.js": "mudcube/MIDI.js#latest"
+  }
+}

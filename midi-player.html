@@ -8,28 +8,43 @@ A Polymer custom element that provides MIDI file playback.
 @element midi-player
 @homepage https://github.com/miztroh/midi-player
 -->
-<polymer-element name="midi-player" attributes="currentTime endTime playing url">
+<polymer-element name="midi-player" attributes="currentTime endTime playing url statusMessage">
 	<template>
 		<style>
 			:host {
 				display: block;
 			}
+
+			:host::shadow #statusMessage {
+				padding: 0 16px;
+			}
+
+			:host::shadow .error #statusMessage {
+				color: red;
+			}
 		</style>
-		<div layout horizontal>
-			<paper-slider id="slider" min="0" max="1" on-core-change="{{seek}}" flex></paper-slider>
-		</div>
-		<div layout horizontal>
-			<template if="{{!playing}}">
-				<paper-icon-button icon="av:play-arrow" on-click="{{play}}"></paper-icon-button>
+		<div id="container">
+			<div layout horizontal>
+				<paper-slider id="slider" min="0" max="1" on-core-change="{{seek}}" flex></paper-slider>
+			</div>
+			<template if="{{$.slider.disabled}}">
+				<div id="statusMessage">{{statusMessage}}</div>
 			</template>
-			<template if="{{playing}}">
-				<paper-icon-button icon="av:pause" on-click="{{pause}}"></paper-icon-button>
+			<template if="{{!$.slider.disabled}}">
+				<div layout horizontal>
+					<template if="{{!playing}}">
+						<paper-icon-button icon="av:play-arrow" on-click="{{play}}"></paper-icon-button>
+					</template>
+					<template if="{{playing}}">
+						<paper-icon-button icon="av:pause" on-click="{{pause}}"></paper-icon-button>
+					</template>
+					<template if="{{currentTime > 0}}">
+						<paper-icon-button icon="av:stop" on-click="{{stop}}"></paper-icon-button>
+					</template>
+					<span flex></span>
+					<div style="line-height: 40px; padding-right: 16px;">{{minutesAndSeconds(currentTime)}} / {{minutesAndSeconds(endTime)}}</div>
+				</div>
 			</template>
-			<template if="{{currentTime > 0}}">
-				<paper-icon-button icon="av:stop" on-click="{{stop}}"></paper-icon-button>
-			</template>
-			<span flex></span>
-			<div>{{minutesAndSeconds(currentTime)}} / {{minutesAndSeconds(endTime)}}</div>
 		</div>
 	</template>
 	<script src="../../bower_components/MIDI.js/js/Window/DOMLoader.XMLHttp.js" type="text/javascript"></script>
@@ -169,10 +184,13 @@ A Polymer custom element that provides MIDI file playback.
 
 							if (this.url.length === 0) return;
 							if (last_player === this) last_player = undefined;
+							this.$.slider.disabled = true;
+							this.$.container.classList.toggle('error', false);
+							this.statusMessage = 'Loading...';
 
 							MIDI.Player.loadFile(
 								this.url,
-								function () {
+								function (data) {
 									last_player = that;
 									that.$.slider.value = 0;
 									endTime[that.index] = MIDI.Player.endTime;
@@ -189,6 +207,7 @@ A Polymer custom element that provides MIDI file playback.
 									}
 
 									that.currentTime = currentTime[that.index];
+									that.$.slider.disabled = false;
 									/**
 									* Fires when MIDI file is loaded.
 									*
@@ -199,6 +218,10 @@ A Polymer custom element that provides MIDI file playback.
 									if (typeof callback === 'function') {
 										callback();
 									}
+								},
+								function (error) {
+									that.$.container.classList.toggle('error', true);
+									that.statusMessage = error;
 								}
 							);
 						},
@@ -363,9 +386,18 @@ A Polymer custom element that provides MIDI file playback.
 		         * @method stop
 		         */
 						stop: function () {
+							var that = this;
+
 							if (last_player !== this) {
 								if (last_player && last_player.playing) last_player.pause();
-								this.load();
+
+								this.load(
+									function () {
+										that.play();
+										that.stop();
+									}
+								);
+
 								return;
 							}
 

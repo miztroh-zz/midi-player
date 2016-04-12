@@ -1,6 +1,6 @@
 {
   "name": "midi-player",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "homepage": "https://github.com/miztroh/midi-player",
   "authors": [
     "miztroh <miztroh@gmail.com>"
@@ -23,8 +23,12 @@
     "tests"
   ],
   "dependencies": {
-    "paper-slider": "Polymer/paper-slider#latest",
-    "paper-icon-button": "Polymer/paper-icon-button#latest",
+    "polymer": "Polymer/polymer#latest",
+    "font-roboto": "PolymerElements/font-roboto#latest",
+    "iron-flex-layout": "PolymerElements/iron-flex-layout#latest",
+    "iron-icons": "PolymerElements/iron-icons#latest",
+    "paper-icon-button": "PolymerElements/paper-icon-button#latest",
+    "paper-slider": "PolymerElements/paper-slider#latest",
     "MIDI.js": "mudcube/MIDI.js#latest"
   }
 }
